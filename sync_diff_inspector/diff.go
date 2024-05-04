@@ -433,13 +433,13 @@ func (df *Diff) consume(ctx context.Context, rangeInfo *splitter.RangeInfo) bool
 	var state string = checkpoints.SuccessState
 
 	isEqual, upCount, downCount, err := df.compareChecksumAndGetCount(ctx, rangeInfo)
+	log.Info("compare checksum and get count", zap.Bool("equal", isEqual), zap.Int64("upstream rows", upCount), zap.Int64("downstream rows", downCount), zap.Error(err))
 	if err != nil {
 		// If an error occurs during the checksum phase, skip the data compare phase.
 		state = checkpoints.FailedState
 		df.report.SetTableMeetError(schema, table, err)
-	} else if !isEqual && df.exportFixSQL {
+	} else if !tableDiff.OnlyUseChecksum || df.exportFixSQL {
 		state = checkpoints.FailedState
-		// if the chunk's checksum differ, try to do binary check
 		info := rangeInfo
 		if upCount > splitter.SplitThreshold {
 			log.Debug("count greater than threshold, start do bingenerate", zap.Any("chunk id", rangeInfo.ChunkRange.Index), zap.Int64("upstream chunk size", upCount))
@@ -459,6 +459,7 @@ func (df *Diff) consume(ctx context.Context, rangeInfo *splitter.RangeInfo) bool
 		}
 		isEqual = isDataEqual
 	}
+
 	dml.node.State = state
 	df.report.SetTableDataCheckResult(schema, table, isEqual, dml.rowAdd, dml.rowDelete, upCount, downCount, id)
 	return isEqual

@@ -362,6 +362,7 @@ func initTables(ctx context.Context, cfg *config.Config) (cfgTables []*config.Ta
 				cfgTable.Fields = table.Fields
 				cfgTable.Collation = table.Collation
 				cfgTable.ChunkSize = table.ChunkSize
+				cfgTable.OnlyUseChecksum = table.OnlyUseChecksum
 				cfgTable.HasMatched = true
 			}
 		}

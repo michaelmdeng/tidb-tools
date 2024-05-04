@@ -80,6 +80,9 @@ type TableConfig struct {
 
 	// specify the chunksize for the table
 	ChunkSize int64 `toml:"chunk-size" json:"chunk-size"`
+
+	// If set, will only use checksum to determine if the tables have equal data
+	OnlyUseChecksum bool `toml:"only-use-checksum" json:"only-use-checksum"`
 }
 
 // Valid returns true if table's config is valide.
